@@ -19,6 +19,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<Integer> list = new ArrayList<>();
+    boolean listModified = false;
+    int localSum = -1;
     ServiceBroadcastReceiver sbr;
     IntentFilter serviceIntentFilter;
     @Override
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText editText = findViewById(R.id.editText);
         final TextView txtView = findViewById(R.id.txtView);
         final Button add = findViewById(R.id.addBtn);
+
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
                     txtView.setText(txtView.getText() + " + " + value);
                 }
                 list.add(Integer.parseInt(value));
+                listModified = true;
             }
         });
 
@@ -46,9 +50,15 @@ public class MainActivity extends AppCompatActivity {
         compute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent("ro.pub.cs.systems.eim.secondaryactivity");
-                intent.putExtra("list", list);
-                startActivityForResult(intent, 5);
+                if (listModified) {
+                    Intent intent = new Intent("ro.pub.cs.systems.eim.secondaryactivity");
+                    intent.putExtra("list", list);
+                    startActivityForResult(intent, 5);
+                    listModified = false;
+                } else {
+                    Toast.makeText(getApplication(), "localsum: " + localSum, Toast.LENGTH_LONG).show();
+                }
+
             }
         });
 
@@ -62,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             Integer sum = data.getIntExtra("sum", -1);
+            this.localSum = sum;
             Toast.makeText(getApplication(), "sum: " + sum, Toast.LENGTH_LONG).show();
 
             if (sum > 10) {
