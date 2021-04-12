@@ -23,7 +23,9 @@
                 android:id="@+id/editText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:width="300dp" />
+                android:width="300dp"
+                android:saveEnabled="false"
+                />
 
             <Button
                 android:id="@+id/addBtn"
@@ -36,7 +38,9 @@
             android:id="@+id/txtView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="" />
+            android:text=""
+            android:saveEnabled="false"
+            />
 
         <LinearLayout
             android:layout_width="wrap_content"
