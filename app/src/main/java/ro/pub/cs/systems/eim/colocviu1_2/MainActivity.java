@@ -4,7 +4,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +19,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<Integer> list = new ArrayList<>();
-
+    ServiceBroadcastReceiver sbr;
+    IntentFilter serviceIntentFilter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, 5);
             }
         });
+
+        sbr = new ServiceBroadcastReceiver(getApplication());
+        serviceIntentFilter = new IntentFilter();
+        serviceIntentFilter.addAction("myAction");
     }
 
     @Override
@@ -56,6 +63,14 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             Integer sum = data.getIntExtra("sum", -1);
             Toast.makeText(getApplication(), "sum: " + sum, Toast.LENGTH_LONG).show();
+
+            if (sum > 10) {
+                System.out.println("From main: sum > 10");
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName("ro.pub.cs.systems.eim.colocviu1_2", "ro.pub.cs.systems.eim.colocviu1_2.Colocviu1_2Service"));
+                intent.putExtra("sum", sum);
+                startService(intent);
+            }
         }
 
     }
@@ -89,5 +104,19 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState.containsKey("list")) {
             this.list = savedInstanceState.getIntegerArrayList("list");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(sbr, serviceIntentFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("ro.pub.cs.systems.eim.colocviu1_2", "ro.pub.cs.systems.eim.colocviu1_2.Colocviu1_2Service"));
+        stopService(intent);
+        super.onDestroy();
     }
 }
